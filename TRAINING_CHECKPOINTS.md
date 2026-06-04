@@ -39,7 +39,17 @@ h-i-e-u/vietnamese-SA-dataset
 Trang thai:
 
 ```text
-pending
+running
+```
+
+Data da tao:
+
+```text
+Rows: 50,649
+positive: 23,040
+negative: 21,949
+neutral: 5,660
+Train sample khi fine-tune: 500 moi nhan
 ```
 
 ## Checkpoint 02: E-commerce Multi-domain Sentiment
