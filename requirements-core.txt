@@ -12,3 +12,4 @@ beautifulsoup4>=4.12
 lxml>=5.2
 tqdm>=4.66
 joblib>=1.4
+datasets>=2.19
