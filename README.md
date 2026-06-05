@@ -1,6 +1,6 @@
 # DS445 AI Sentiment Demo
 
-Website demo model AI cho đồ án tốt nghiệp: phân tích cảm xúc bình luận Shopee tiếng Việt bằng PhoBERT-base.
+Website demo model AI cho đồ án: phân tích cảm xúc bình luận Shopee tiếng Việt bằng PhoBERT-base.
 
 ## Tính năng chính
 
@@ -186,12 +186,3 @@ reports/evaluation/ckpt_03_shopee_absa_vietnamese/evaluation_summary.md
 reports/evaluation/ckpt_03_shopee_absa_vietnamese/error_analysis.md
 ```
 
-## Screenshot
-
-Sau khi chạy frontend, chụp các màn hình sau để đưa vào báo cáo hoặc portfolio:
-
-- Demo model với một bình luận mẫu.
-- Analytics dashboard.
-- Confusion matrix.
-- About Model.
-- Documentation.
