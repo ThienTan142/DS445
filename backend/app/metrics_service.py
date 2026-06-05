@@ -47,6 +47,13 @@ def read_predictions() -> pd.DataFrame:
     return pd.read_csv(path, encoding="utf-8-sig")
 
 
+def read_errors() -> pd.DataFrame:
+    path = REPORT_DIR / "errors.csv"
+    if not path.exists():
+        return pd.DataFrame()
+    return pd.read_csv(path, encoding="utf-8-sig")
+
+
 def sample_metrics() -> dict[str, Any]:
     return {
         "cards": {
@@ -82,6 +89,40 @@ def sample_metrics() -> dict[str, Any]:
             {"label": "Neutral", "precision": 0.57, "recall": 0.61, "f1": 0.59},
             {"label": "Positive", "precision": 0.92, "recall": 0.83, "f1": 0.87},
         ],
+        "error_analysis": {
+            "summary": {
+                "total_samples": 2335,
+                "correct_samples": 1796,
+                "error_samples": 539,
+                "error_rate": 0.2308,
+            },
+            "confusion_pairs": [
+                {"actual": "Positive", "predicted": "Neutral", "count": 234},
+                {"actual": "Neutral", "predicted": "Negative", "count": 134},
+                {"actual": "Neutral", "predicted": "Positive", "count": 103},
+                {"actual": "Negative", "predicted": "Neutral", "count": 38},
+                {"actual": "Positive", "predicted": "Negative", "count": 27},
+            ],
+            "aspect_errors": [
+                {"aspect": "Outlook", "count": 264},
+                {"aspect": "General", "count": 152},
+                {"aspect": "Quality", "count": 141},
+                {"aspect": "Shop_Service", "count": 119},
+                {"aspect": "Size", "count": 118},
+                {"aspect": "Shipping", "count": 114},
+                {"aspect": "Price", "count": 64},
+                {"aspect": "Others", "count": 59},
+            ],
+            "high_confidence_errors": [
+                {
+                    "review_text": "san pham gia mem, dang mua nha cac ban",
+                    "actual": "Neutral",
+                    "predicted": "Positive",
+                    "confidence": 0.9558,
+                    "aspect": "General",
+                }
+            ],
+        },
     }
 
 
@@ -104,6 +145,89 @@ def build_prediction_history() -> list[dict[str, Any]]:
                 base[event["date"]] += 1
         return [{"date": day, "count": count} for day, count in base.items()]
     return sample_metrics()["prediction_history"]
+
+
+def title_label(value: Any) -> str:
+    return str(value or "").strip().title()
+
+
+def clean_text(value: Any) -> str:
+    if pd.isna(value):
+        return ""
+    return str(value)
+
+
+def split_aspects(value: Any) -> list[str]:
+    if pd.isna(value) or not str(value).strip():
+        return ["Unknown"]
+    return [part.strip() for part in str(value).split(",") if part.strip()] or ["Unknown"]
+
+
+def build_error_analysis(predictions_df: pd.DataFrame, errors_df: pd.DataFrame) -> dict[str, Any]:
+    if predictions_df.empty:
+        return sample_metrics()["error_analysis"]
+
+    if errors_df.empty:
+        errors_df = predictions_df[predictions_df["label"].astype(str) != predictions_df["predicted_label"].astype(str)]
+
+    total_samples = len(predictions_df)
+    error_samples = len(errors_df)
+    correct_samples = total_samples - error_samples
+    error_rate = error_samples / total_samples if total_samples else 0.0
+
+    confusion_pairs = []
+    if not errors_df.empty:
+        pair_counts = (
+            errors_df.groupby(["label", "predicted_label"])
+            .size()
+            .reset_index(name="count")
+            .sort_values("count", ascending=False)
+        )
+        confusion_pairs = [
+            {
+                "actual": title_label(row["label"]),
+                "predicted": title_label(row["predicted_label"]),
+                "count": int(row["count"]),
+            }
+            for _, row in pair_counts.head(8).iterrows()
+        ]
+
+    aspect_counter: dict[str, int] = {}
+    if "aspect" in errors_df.columns:
+        for value in errors_df["aspect"]:
+            for aspect in split_aspects(value):
+                aspect_counter[aspect] = aspect_counter.get(aspect, 0) + 1
+    aspect_errors = [
+        {"aspect": aspect, "count": count}
+        for aspect, count in sorted(aspect_counter.items(), key=lambda item: item[1], reverse=True)[:10]
+    ]
+
+    high_confidence_errors = []
+    needed_cols = {"review_text", "label", "predicted_label", "confidence"}
+    if needed_cols.issubset(errors_df.columns):
+        top_errors = errors_df.sort_values("confidence", ascending=False).head(8)
+        high_confidence_errors = [
+            {
+                "review_text": clean_text(row["review_text"]),
+                "actual": title_label(row["label"]),
+                "predicted": title_label(row["predicted_label"]),
+                "confidence": round(float(row["confidence"]), 4),
+                "aspect": clean_text(row.get("aspect", "")),
+            }
+            for _, row in top_errors.iterrows()
+        ]
+
+    return {
+        "summary": {
+            "total_samples": int(total_samples),
+            "correct_samples": int(correct_samples),
+            "error_samples": int(error_samples),
+            "error_rate": round(float(error_rate), 4),
+        },
+        "confusion_pairs": confusion_pairs,
+        "aspect_errors": aspect_errors,
+        "high_confidence_errors": high_confidence_errors,
+    }
 
 
 def build_metrics() -> dict[str, Any]:
@@ -145,4 +269,5 @@ def build_metrics() -> dict[str, Any]:
     ]
     metrics["confidence_distribution"] = build_confidence_distribution(df)
     metrics["prediction_history"] = build_prediction_history()
+    metrics["error_analysis"] = build_error_analysis(df, read_errors())
     return metrics

@@ -24,6 +24,8 @@ function formatPercent(value) {
 export default function MetricsDashboard({ metrics }) {
   const cards = metrics?.cards || {};
   const matrix = metrics?.confusion_matrix || { labels: [], values: [] };
+  const errorAnalysis = metrics?.error_analysis || {};
+  const errorSummary = errorAnalysis.summary || {};
   const shortDate = (value) => String(value || '').slice(5);
 
   return (
@@ -113,7 +115,109 @@ export default function MetricsDashboard({ metrics }) {
             </BarChart>
           </ResponsiveContainer>
         </section>
+
+        <section className="panel chart-panel wide error-analysis-panel">
+          <div className="section-title compact-title">
+            <div>
+              <span className="eyebrow">Error analysis</span>
+              <h2>Bảng phân tích lỗi dự đoán</h2>
+            </div>
+            <span className="label-badge negative">{formatPercent(errorSummary.error_rate)} error rate</span>
+          </div>
+
+          <div className="error-summary-row">
+            <SummaryItem label="Total samples" value={errorSummary.total_samples || 0} />
+            <SummaryItem label="Correct" value={errorSummary.correct_samples || 0} />
+            <SummaryItem label="Errors" value={errorSummary.error_samples || 0} />
+            <SummaryItem label="Error rate" value={formatPercent(errorSummary.error_rate)} />
+          </div>
+
+          <div className="error-tables-grid">
+            <div className="table-block">
+              <h3>Cặp nhãn hay bị nhầm</h3>
+              <div className="table-wrap">
+                <table className="compact-table">
+                  <thead>
+                    <tr>
+                      <th>Actual</th>
+                      <th>Predicted</th>
+                      <th>Count</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {(errorAnalysis.confusion_pairs || []).map((row) => (
+                      <tr key={`${row.actual}-${row.predicted}`}>
+                        <td>{row.actual}</td>
+                        <td>{row.predicted}</td>
+                        <td>{row.count}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <div className="table-block">
+              <h3>Lỗi theo aspect</h3>
+              <div className="table-wrap">
+                <table className="compact-table">
+                  <thead>
+                    <tr>
+                      <th>Aspect</th>
+                      <th>Error count</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {(errorAnalysis.aspect_errors || []).map((row) => (
+                      <tr key={row.aspect}>
+                        <td>{row.aspect}</td>
+                        <td>{row.count}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <div className="table-block">
+            <h3>Lỗi confidence cao</h3>
+            <div className="table-wrap">
+              <table className="error-table">
+                <thead>
+                  <tr>
+                    <th>Review</th>
+                    <th>Actual</th>
+                    <th>Predicted</th>
+                    <th>Confidence</th>
+                    <th>Aspect</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {(errorAnalysis.high_confidence_errors || []).map((row, index) => (
+                    <tr key={`${row.review_text}-${index}`}>
+                      <td className="review-cell">{row.review_text}</td>
+                      <td>{row.actual}</td>
+                      <td>{row.predicted}</td>
+                      <td>{formatPercent(row.confidence)}</td>
+                      <td>{row.aspect}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
       </div>
+    </div>
+  );
+}
+
+function SummaryItem({ label, value }) {
+  return (
+    <div className="summary-item">
+      <span>{label}</span>
+      <strong>{value}</strong>
     </div>
   );
 }
