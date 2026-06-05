@@ -1,0 +1,9 @@
+{
+  "model": "models\\ckpt_03_shopee_absa_vietnamese",
+  "data": "data\\shopee_vietnamese_absa_sentiment.csv",
+  "num_samples": 2335,
+  "num_errors": 539,
+  "accuracy": 0.7691648822269808,
+  "f1_macro": 0.7049988767769536,
+  "f1_weighted": 0.77686293960512
+}

@@ -39,7 +39,7 @@ h-i-e-u/vietnamese-SA-dataset
 Trang thai:
 
 ```text
-running
+complete
 ```
 
 Data da tao:
@@ -50,6 +50,8 @@ positive: 23,040
 negative: 21,949
 neutral: 5,660
 Train sample khi fine-tune: 500 moi nhan
+Accuracy: 0.6969
+Macro F1: 0.6911
 ```
 
 ## Checkpoint 02: E-commerce Multi-domain Sentiment
@@ -83,7 +85,22 @@ CausaSent/Tiki
 Trang thai:
 
 ```text
-pending
+complete
+```
+
+Data da tao:
+
+```text
+Rows: 12,395
+negative: 6,657
+positive: 4,756
+neutral: 982
+Train sample khi fine-tune: 500 moi nhan
+Accuracy: 0.6253
+Macro F1: 0.5681
+Negative F1: 0.69
+Neutral F1: 0.31
+Positive F1: 0.71
 ```
 
 ## Checkpoint 03: Shopee ABSA Vietnamese
@@ -115,5 +132,20 @@ Kaggle ABSA Vietnamese - Shopee shoe reviews
 Trang thai:
 
 ```text
-pending
+complete
+```
+
+Data da tao:
+
+```text
+Rows: 11,682
+positive: 7,594
+neutral: 2,985
+negative: 1,103
+Train sample khi fine-tune: 500 moi nhan
+Accuracy: 0.7692
+Macro F1: 0.7050
+Negative F1: 0.65
+Neutral F1: 0.59
+Positive F1: 0.87
 ```

@@ -110,7 +110,7 @@ def predict_labels(df: pd.DataFrame, model_dir: str, batch_size: int, max_length
 def main() -> None:
     parser = argparse.ArgumentParser(description="Predict Shopee review sentiment with PhoBERT.")
     parser.add_argument("--data", default="data/shopee_vietnamese_absa_sentiment.csv")
-    parser.add_argument("--model", default="models/phobert_absa_shopee_vietnamese")
+    parser.add_argument("--model", default="models/ckpt_03_shopee_absa_vietnamese")
     parser.add_argument("--catalog", default="data/product_catalog.csv")
     parser.add_argument("--out", default="data/shopee_vietnamese_absa_scored.csv")
     parser.add_argument("--batch-size", type=int, default=16)

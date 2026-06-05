@@ -1,11 +1,17 @@
 .venv/
 __pycache__/
 *.pyc
+.env
+frontend/node_modules/
+frontend/dist/
+logs/
+reports/evaluation/**/predictions.csv
+reports/evaluation/**/errors.csv
 
 # Local crawl secrets and generated data
 data_collection/shopee_cookie.txt
 data_collection/get_ratings_curl.txt
 data_collection/rating_requests/*.txt
 data_collection/rating_requests/**/*.txt
-data/
-models/
+/data/
+/models/
